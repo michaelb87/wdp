@@ -12,8 +12,11 @@ import {
   techBox,
   cryptoGraph
 } from './boxes/';
-let crypto;
+import * as optimist from 'optimist';
+var argv = require('optimist').argv;
 
+let crypto;
+const UpdateInterval = 15*60*1000; // update every 15 minutes
 
 const ns = new NewsService();
 const boxes = [
@@ -23,9 +26,11 @@ const boxes = [
   { name: 'news', box: newsBox, data: ns.news, },
 ]
 
-async function initialRender (): Promise<any> {
+async function renderer (initial: boolean) {
   for (let box of boxes) {
-    screen.append(box.box);
+    if (initial) {
+      screen.append(box.box);
+    }
     box.data().then(d => {
       renderBox(d, box.box, box.name);
     });
@@ -55,6 +60,7 @@ function renderBox(items: NewsArticle[], box: blessed.Widgets.BoxElement, name: 
     }
   });
   box.append(list);
+
   screen.render();
 }
 
@@ -70,4 +76,5 @@ function renderGraph (line: any) {
 }
 screen.key(['escape', 'q', 'C-c'], () => process.exit(0));
 screen.render();
-initialRender();
+renderer(true);
+setInterval(renderer, argv.u ? argv.u*60*1000 : UpdateInterval); // set updateinterval with "-u 20" for 20 minutes 
