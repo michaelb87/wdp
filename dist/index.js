@@ -74,8 +74,8 @@ function renderer(initial) {
 }
 function renderBox(items, box, name) {
     if (box.children.length == 2) {
-        box.children[1].clearItems();
-        box.children[1].setItems(items.map(function (article) { return article.title; }));
+        box.children[1].clearItems(); //clear all items of existing list
+        box.children[1].setItems(items.map(function (article) { return article.title; })); // add new items
     }
     else {
         var list_1 = blessed.list({
@@ -104,4 +104,4 @@ function renderBox(items, box, name) {
 screen.key(['escape', 'q', 'C-c'], function () { return process.exit(0); });
 screen.render();
 renderer(true);
-setInterval(renderer, argv.u ? argv.u * 10 * 1000 : UpdateInterval); // set updateinterval with "-u 20" for 20 minutes 
+setInterval(renderer, argv.u ? argv.u * 60 * 1000 : UpdateInterval); // set updateinterval with "-u 20" for 20 minutes 

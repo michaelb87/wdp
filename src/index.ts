@@ -71,4 +71,4 @@ function renderBox(items: NewsArticle[], box: blessed.Widgets.BoxElement, name: 
 screen.key(['escape', 'q', 'C-c'], () => process.exit(0));
 screen.render();
 renderer(true);
-setInterval(renderer, argv.u ? argv.u*10*1000 : UpdateInterval); // set updateinterval with "-u 20" for 20 minutes 
+setInterval(renderer, argv.u ? argv.u*60*1000 : UpdateInterval); // set updateinterval with "-u 20" for 20 minutes 
