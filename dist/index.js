@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -37,43 +36,39 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var blessed = require("blessed");
-var screen = blessed.screen({ smartCSR: true });
+var screen = blessed.screen({ smartCSR: true, debug: true });
 screen.title = "Waddup!?";
-var contrib = require("blessed-contrib");
 var opn = require("opn");
 var news_service_1 = require("./services/news.service");
 var _1 = require("./boxes/");
+var argv = require('optimist').argv;
 var crypto;
+var UpdateInterval = 15 * 60 * 1000; // update every 15 minutes
 var ns = new news_service_1.NewsService();
 var boxes = [
     { name: 'reddit', box: _1.redditBox, data: ns.reddit },
     { name: 'hackernews', box: _1.hnBox, data: ns.hackerNews },
     { name: 'tech', box: _1.techBox, data: ns.tech },
     { name: 'news', box: _1.newsBox, data: ns.news },
+    { name: 'orf', box: _1.orfBox, data: ns.orf },
 ];
-function initialRender() {
+function renderer(initial) {
     return __awaiter(this, void 0, void 0, function () {
-        var _loop_1, _i, boxes_1, box, line;
+        var _loop_1, _i, boxes_1, box;
         return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    _loop_1 = function (box) {
-                        screen.append(box.box);
-                        box.data().then(function (d) {
-                            renderBox(d, box.box, box.name);
-                        });
-                    };
-                    for (_i = 0, boxes_1 = boxes; _i < boxes_1.length; _i++) {
-                        box = boxes_1[_i];
-                        _loop_1(box);
-                    }
-                    return [4 /*yield*/, ns.crypto()];
-                case 1:
-                    crypto = _a.sent();
-                    line = contrib.line(crypto);
-                    renderGraph(_1.cryptoGraph);
-                    return [2 /*return*/];
+            _loop_1 = function (box) {
+                if (initial) {
+                    screen.append(box.box);
+                }
+                box.data().then(function (d) {
+                    renderBox(d, box.box, box.name);
+                });
+            };
+            for (_i = 0, boxes_1 = boxes; _i < boxes_1.length; _i++) {
+                box = boxes_1[_i];
+                _loop_1(box);
             }
+            return [2 /*return*/];
         });
     });
 }
@@ -100,16 +95,7 @@ function renderBox(items, box, name) {
     box.append(list);
     screen.render();
 }
-function renderGraph(line) {
-    screen.append(line);
-    line.style = {
-        left: '50%',
-        height: '50%',
-        top: '50%'
-    };
-    line.setData(crypto);
-    screen.render();
-}
 screen.key(['escape', 'q', 'C-c'], function () { return process.exit(0); });
 screen.render();
-initialRender();
+renderer(true);
+setInterval(renderer, argv.u ? argv.u * 60 * 1000 : UpdateInterval); // set updateinterval with "-u 20" for 20 minutes 

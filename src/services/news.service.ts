@@ -1,5 +1,6 @@
 declare var Promise;
 import fetch from 'node-fetch';
+import * as parser from 'rss-parser';
 
 export interface NewsArticle {
   title: string;
@@ -68,6 +69,25 @@ export class NewsService {
       x: res.Data.map(cc => new Date(cc.time * 1000).toDateString().substr(0,10)),
       y: res.Data.map(cc => cc.close),
     };
+  }
+
+  async orf () : Promise<NewsArticle[]> {
+    let orfXML = `https://rss.orf.at/news.xml`;
+    let opts = {
+      customFields: {
+        item: ['dc:subject'],
+      }
+    }
+    return new Promise((resolve, reject) => {
+      parser.parseURL('https://rss.orf.at/news.xml',opts, function(err, parsed) {
+        resolve(
+          parsed.feed.entries.map(function(entry) {
+            return {title: `[${entry['dc:subject']}] ${entry.title}`, description: ``, author: ``, url: entry.link};
+          })
+        );
+      })
+    })
+
   }
 
 }

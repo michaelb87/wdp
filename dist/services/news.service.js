@@ -36,6 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var node_fetch_1 = require("node-fetch");
+var parser = require("rss-parser");
 function getArticles(type) {
     return __awaiter(this, void 0, void 0, function () {
         var newsAPI, techAPI, req, _a, data;
@@ -69,7 +70,7 @@ function getArticles(type) {
         });
     });
 }
-var NewsService = (function () {
+var NewsService = /** @class */ (function () {
     function NewsService() {
     }
     NewsService.prototype.tech = function () {
@@ -145,6 +146,26 @@ var NewsService = (function () {
                                 y: res.Data.map(function (cc) { return cc.close; })
                             }];
                 }
+            });
+        });
+    };
+    NewsService.prototype.orf = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var orfXML, opts;
+            return __generator(this, function (_a) {
+                orfXML = "https://rss.orf.at/news.xml";
+                opts = {
+                    customFields: {
+                        item: ['dc:subject']
+                    }
+                };
+                return [2 /*return*/, new Promise(function (resolve, reject) {
+                        parser.parseURL('https://rss.orf.at/news.xml', opts, function (err, parsed) {
+                            resolve(parsed.feed.entries.map(function (entry) {
+                                return { title: "[" + entry['dc:subject'] + "] " + entry.title, description: "", author: "", url: entry.link };
+                            }));
+                        });
+                    })];
             });
         });
     };

@@ -1,6 +1,6 @@
 declare var Promise;
 import * as blessed from 'blessed';
-let screen = blessed.screen({smartCSR: true});
+let screen = blessed.screen({smartCSR: true, debug: true});
 screen.title = `Waddup!?`;
 import * as contrib from 'blessed-contrib';
 import * as opn from 'opn';
@@ -10,7 +10,7 @@ import {
   hnBox,
   newsBox,
   techBox,
-  cryptoGraph
+  orfBox
 } from './boxes/';
 import * as optimist from 'optimist';
 var argv = require('optimist').argv;
@@ -24,9 +24,10 @@ const boxes = [
   { name: 'hackernews', box: hnBox, data: ns.hackerNews, },
   { name: 'tech', box: techBox, data: ns.tech, },
   { name: 'news', box: newsBox, data: ns.news, },
+  { name: 'orf', box: orfBox, data: ns.orf, },
 ]
 
-async function renderer (initial: boolean) {
+async function renderer (initial: boolean) : Promise<any>{
   for (let box of boxes) {
     if (initial) {
       screen.append(box.box);
@@ -35,9 +36,6 @@ async function renderer (initial: boolean) {
       renderBox(d, box.box, box.name);
     });
   }
-  crypto = await ns.crypto();
-  let line = contrib.line(crypto);
-  renderGraph(cryptoGraph);
 }
 
 function renderBox(items: NewsArticle[], box: blessed.Widgets.BoxElement, name: string) {
@@ -64,16 +62,7 @@ function renderBox(items: NewsArticle[], box: blessed.Widgets.BoxElement, name: 
   screen.render();
 }
 
-function renderGraph (line: any) {
-  screen.append(line);
-  line.style = {
-    left: '50%',
-    height: '50%',
-    top: '50%'
-  };
-  line.setData(crypto);
-  screen.render();
-}
+
 screen.key(['escape', 'q', 'C-c'], () => process.exit(0));
 screen.render();
 renderer(true);
