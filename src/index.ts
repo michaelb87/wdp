@@ -39,27 +39,31 @@ async function renderer (initial: boolean) : Promise<any>{
 }
 
 function renderBox(items: NewsArticle[], box: blessed.Widgets.BoxElement, name: string) {
-  box.children=[]; // on update free up memory
-  let list = blessed.list({
-    items: items.map(article => article.title),
-    mouse: true,
-    style: {
-      selected: {bg: `#0f0`, fg: `#000`},
-    },
-    name: name
-  });
-  list.on('select', (item) => {
-    let article = items[list.getItemIndex(item)];
-    try {
-      opn(article.url);
-    } catch (e) {
-      /**
-       * Could not get url for this list item.. weird.. 
-       */
-    }
-  });
-  box.append(list);
-
+  if(box.children.length==2){
+    box.children[1].clearItems(); //clear all items of existing list
+    box.children[1].setItems(items.map(article => article.title)); // add new items
+  } else { // create list
+    let list = blessed.list({
+      items: items.map(article => article.title),
+      mouse: true,
+      style: {
+        selected: {bg: `#0f0`, fg: `#000`},
+      },
+      name: name
+    });
+    list.on('select', (item) => {
+      let article = items[list.getItemIndex(item)];
+      try {
+        opn(article.url);
+      } catch (e) {
+        /**
+         * Could not get url for this list item.. weird.. 
+         */
+      }
+    });
+    box.append(list);
+  }
+  
   screen.render();
 }
 
@@ -67,4 +71,4 @@ function renderBox(items: NewsArticle[], box: blessed.Widgets.BoxElement, name: 
 screen.key(['escape', 'q', 'C-c'], () => process.exit(0));
 screen.render();
 renderer(true);
-setInterval(renderer, argv.u ? argv.u*60*1000 : UpdateInterval); // set updateinterval with "-u 20" for 20 minutes 
+setInterval(renderer, argv.u ? argv.u*10*1000 : UpdateInterval); // set updateinterval with "-u 20" for 20 minutes 

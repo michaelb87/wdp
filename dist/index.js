@@ -73,31 +73,35 @@ function renderer(initial) {
     });
 }
 function renderBox(items, box, name) {
-    box.children = [];
-    var list = blessed.list({
-        items: items.map(function (article) { return article.title; }),
-        mouse: true,
-        style: {
-            selected: { bg: "#0f0", fg: "#000" }
-        },
-        name: name
-    });
-    list.on('select', function (item) {
-        var article = items[list.getItemIndex(item)];
-        try {
-            opn(article.url);
-        }
-        catch (e) {
-            /**
-             * Could not get url for this list item.. weird..
-             */
-        }
-    });
-    box.append(list);
-    //debugger;
+    if (box.children.length == 2) {
+        box.children[1].clearItems();
+        box.children[1].setItems(items.map(function (article) { return article.title; }));
+    }
+    else {
+        var list_1 = blessed.list({
+            items: items.map(function (article) { return article.title; }),
+            mouse: true,
+            style: {
+                selected: { bg: "#0f0", fg: "#000" }
+            },
+            name: name
+        });
+        list_1.on('select', function (item) {
+            var article = items[list_1.getItemIndex(item)];
+            try {
+                opn(article.url);
+            }
+            catch (e) {
+                /**
+                 * Could not get url for this list item.. weird..
+                 */
+            }
+        });
+        box.append(list_1);
+    }
     screen.render();
 }
 screen.key(['escape', 'q', 'C-c'], function () { return process.exit(0); });
 screen.render();
 renderer(true);
-setInterval(renderer, argv.u ? argv.u * 60 * 1000 : UpdateInterval); // set updateinterval with "-u 20" for 20 minutes 
+setInterval(renderer, argv.u ? argv.u * 10 * 1000 : UpdateInterval); // set updateinterval with "-u 20" for 20 minutes 
