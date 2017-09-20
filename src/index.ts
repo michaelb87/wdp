@@ -1,6 +1,6 @@
 declare var Promise;
 import * as blessed from 'blessed';
-let screen = blessed.screen({smartCSR: true, debug: true});
+let screen = blessed.screen({smartCSR: true});
 screen.title = `Waddup!?`;
 import * as contrib from 'blessed-contrib';
 import * as opn from 'opn';

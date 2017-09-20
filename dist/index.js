@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var blessed = require("blessed");
-var screen = blessed.screen({ smartCSR: true, debug: true });
+var screen = blessed.screen({ smartCSR: true });
 screen.title = "Waddup!?";
 var opn = require("opn");
 var news_service_1 = require("./services/news.service");
