@@ -73,6 +73,7 @@ function renderer(initial) {
     });
 }
 function renderBox(items, box, name) {
+    box.children = [];
     var list = blessed.list({
         items: items.map(function (article) { return article.title; }),
         mouse: true,
@@ -93,6 +94,7 @@ function renderBox(items, box, name) {
         }
     });
     box.append(list);
+    //debugger;
     screen.render();
 }
 screen.key(['escape', 'q', 'C-c'], function () { return process.exit(0); });

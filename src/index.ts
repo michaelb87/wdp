@@ -39,6 +39,7 @@ async function renderer (initial: boolean) : Promise<any>{
 }
 
 function renderBox(items: NewsArticle[], box: blessed.Widgets.BoxElement, name: string) {
+  box.children=[]; // on update free up memory
   let list = blessed.list({
     items: items.map(article => article.title),
     mouse: true,
