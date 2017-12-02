@@ -41,9 +41,22 @@ screen.title = "Waddup!?";
 var opn = require("opn");
 var news_service_1 = require("./services/news.service");
 var _1 = require("./boxes/");
+var winston = require("winston");
 var argv = require('optimist').argv;
 var crypto;
 var UpdateInterval = 15 * 60 * 1000; // update every 15 minutes
+var logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.json(),
+    transports: [
+        //
+        // - Write to all logs with level `info` and below to `combined.log` 
+        // - Write all logs error (and below) to `error.log`.
+        //
+        new winston.transports.File({ filename: 'error.log', level: 'error' }),
+        new winston.transports.File({ filename: 'combined.log' })
+    ]
+});
 var ns = new news_service_1.NewsService();
 var boxes = [
     { name: 'reddit', box: _1.redditBox, data: ns.reddit },
@@ -57,9 +70,10 @@ function renderer(initial) {
         var _loop_1, _i, boxes_1, box;
         return __generator(this, function (_a) {
             _loop_1 = function (box) {
-                if (initial) {
-                    screen.append(box.box);
+                if (!initial) {
+                    screen.remove(box.box);
                 }
+                screen.append(box.box);
                 box.data().then(function (d) {
                     renderBox(d, box.box, box.name);
                 });
@@ -73,9 +87,10 @@ function renderer(initial) {
     });
 }
 function renderBox(items, box, name) {
-    if (box.children.length == 2) {
-        box.children[1].clearItems(); //clear all items of existing list
-        box.children[1].setItems(items.map(function (article) { return article.title; })); // add new items
+    if (box.children.length >= 2) {
+        debugger;
+        //box.children[1].clearItems(); //clear all items of existing list
+        //box.children[1].setItems(items.map(article => article.title)); // add new items
     }
     else {
         var list_1 = blessed.list({
@@ -104,4 +119,5 @@ function renderBox(items, box, name) {
 screen.key(['escape', 'q', 'C-c'], function () { return process.exit(0); });
 screen.render();
 renderer(true);
-setInterval(renderer, argv.u ? argv.u * 60 * 1000 : UpdateInterval); // set updateinterval with "-u 20" for 20 minutes 
+renderer(false);
+setInterval(renderer, argv.u ? parseInt(argv.u) * 60 * 1000 : UpdateInterval); // set updateinterval with "-u 20" for 20 minutes 

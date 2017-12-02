@@ -13,10 +13,25 @@ import {
   orfBox
 } from './boxes/';
 import * as optimist from 'optimist';
+import * as winston from 'winston';
 var argv = require('optimist').argv;
 
 let crypto;
 const UpdateInterval = 15*60*1000; // update every 15 minutes
+
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  transports: [
+    //
+    // - Write to all logs with level `info` and below to `combined.log` 
+    // - Write all logs error (and below) to `error.log`.
+    //
+    new winston.transports.File({ filename: 'error.log', level: 'error' }),
+    new winston.transports.File({ filename: 'combined.log' })
+  ]
+});
+
 
 const ns = new NewsService();
 const boxes = [
@@ -29,9 +44,10 @@ const boxes = [
 
 async function renderer (initial: boolean) : Promise<any>{
   for (let box of boxes) {
-    if (initial) {
-      screen.append(box.box);
+    if (!initial) {
+      screen.remove(box.box);
     }
+    screen.append(box.box);
     box.data().then(d => {
       renderBox(d, box.box, box.name);
     });
@@ -39,9 +55,10 @@ async function renderer (initial: boolean) : Promise<any>{
 }
 
 function renderBox(items: NewsArticle[], box: blessed.Widgets.BoxElement, name: string) {
-  if(box.children.length==2){
-    box.children[1].clearItems(); //clear all items of existing list
-    box.children[1].setItems(items.map(article => article.title)); // add new items
+  if(box.children.length>=2){
+    debugger;
+    //box.children[1].clearItems(); //clear all items of existing list
+    //box.children[1].setItems(items.map(article => article.title)); // add new items
   } else { // create list
     let list = blessed.list({
       items: items.map(article => article.title),
@@ -71,4 +88,5 @@ function renderBox(items: NewsArticle[], box: blessed.Widgets.BoxElement, name: 
 screen.key(['escape', 'q', 'C-c'], () => process.exit(0));
 screen.render();
 renderer(true);
-setInterval(renderer, argv.u ? argv.u*60*1000 : UpdateInterval); // set updateinterval with "-u 20" for 20 minutes 
+renderer(false);
+setInterval(renderer, argv.u ? parseInt(argv.u)*60*1000 : UpdateInterval); // set updateinterval with "-u 20" for 20 minutes 
