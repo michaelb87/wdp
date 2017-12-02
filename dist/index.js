@@ -41,22 +41,10 @@ screen.title = "Waddup!?";
 var opn = require("opn");
 var news_service_1 = require("./services/news.service");
 var _1 = require("./boxes/");
-var winston = require("winston");
-var argv = require('optimist').argv;
+var optimist = require("optimist");
+var argv = optimist.argv;
 var crypto;
 var UpdateInterval = 15 * 60 * 1000; // update every 15 minutes
-var logger = winston.createLogger({
-    level: 'info',
-    format: winston.format.json(),
-    transports: [
-        //
-        // - Write to all logs with level `info` and below to `combined.log` 
-        // - Write all logs error (and below) to `error.log`.
-        //
-        new winston.transports.File({ filename: 'error.log', level: 'error' }),
-        new winston.transports.File({ filename: 'combined.log' })
-    ]
-});
 var ns = new news_service_1.NewsService();
 var boxes = [
     { name: 'reddit', box: _1.redditBox, data: ns.reddit },
@@ -87,33 +75,26 @@ function renderer(initial) {
     });
 }
 function renderBox(items, box, name) {
-    if (box.children.length >= 2) {
-        debugger;
-        //box.children[1].clearItems(); //clear all items of existing list
-        //box.children[1].setItems(items.map(article => article.title)); // add new items
-    }
-    else {
-        var list_1 = blessed.list({
-            items: items.map(function (article) { return article.title; }),
-            mouse: true,
-            style: {
-                selected: { bg: "#0f0", fg: "#000" }
-            },
-            name: name
-        });
-        list_1.on('select', function (item) {
-            var article = items[list_1.getItemIndex(item)];
-            try {
-                opn(article.url);
-            }
-            catch (e) {
-                /**
-                 * Could not get url for this list item.. weird..
-                 */
-            }
-        });
-        box.append(list_1);
-    }
+    var list = blessed.list({
+        items: items.map(function (article) { return article.title; }),
+        mouse: true,
+        style: {
+            selected: { bg: "#0f0", fg: "#000" }
+        },
+        name: name
+    });
+    list.on('select', function (item) {
+        var article = items[list.getItemIndex(item)];
+        try {
+            opn(article.url);
+        }
+        catch (e) {
+            /**
+             * Could not get url for this list item.. weird..
+             */
+        }
+    });
+    box.append(list);
     screen.render();
 }
 screen.key(['escape', 'q', 'C-c'], function () { return process.exit(0); });
